@@ -1,4 +1,5 @@
-
+import {cart} from '../data/cart.js';
+import {products} from '../data/products.js';
 let productsHTML = '';
 const productsGrid = document.querySelector('.products-grid');
 products.forEach((product) => {
@@ -26,7 +27,7 @@ products.forEach((product) => {
           </div>
 
           <div class="product-quantity-container">
-            <select>
+            <select class='js-quantity-selector-${product.id}'>
               <option selected value="1">1</option>
               <option value="2">2</option>
               <option value="3">3</option>
@@ -42,7 +43,7 @@ products.forEach((product) => {
 
           <div class="product-spacer"></div>
 
-          <div class="added-to-cart">
+          <div class="added-to-cart added-to-cart-js-${product.id}">
             <img src="images/icons/checkmark.png">
             Added
           </div>
@@ -67,13 +68,13 @@ addToCartButtons.forEach(button => button.addEventListener(('click'), () => {
             matchingItem = item;
         }
     });
-
+    let quantity = Number(document.querySelector(`.js-quantity-selector-${productId}`).value);
     if(matchingItem){
-        matchingItem.quantity += 1;
+        matchingItem.quantity += quantity;
     } else{
         cart.push({
             productId: productId,
-            quantity : 1,
+            quantity : quantity,
         });
     };
     let cartQuantity = 0;
@@ -81,6 +82,24 @@ addToCartButtons.forEach(button => button.addEventListener(('click'), () => {
         cartQuantity += item.quantity;
     });
     cartQuantityHTML.innerText = cartQuantity;
+
+    const addedToCart = document.querySelector(`.added-to-cart-js-${productId}`);
+    addedToCart.classList.add('opacityShow');
+    let removeTimeout = false;
+    
+    function removeOpacity() {
+      addedToCart.classList.remove('opacityShow');
+    };
+    let timeoutId = setTimeout(removeOpacity,2000);
+
+    if(!removeTimeout){
+      setTimeout(removeOpacity,2000);
+      removeTimeout = true;
+    } else {
+      clearTimeout(timeoutId);
+      removeTimeout = false;
+    }
+  
 }));
 
 
