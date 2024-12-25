@@ -1,4 +1,4 @@
-import {cart} from '../data/cart.js';
+import {cart,addProductToCart} from '../data/cart.js';
 import {products} from '../data/products.js';
 let productsHTML = '';
 const productsGrid = document.querySelector('.products-grid');
@@ -59,31 +59,28 @@ productsGrid.innerHTML = productsHTML;
 
 let addToCartButtons = document.querySelectorAll('.add-to-cart-button');
 let cartQuantityHTML = document.querySelector('.cart-quantity');
-addToCartButtons.forEach(button => button.addEventListener(('click'), () => {
 
-    const productId = button.dataset.productId;
-    let matchingItem;
-    cart.forEach((item)=>{
-        if(productId === item.productId){
-            matchingItem = item;
-        }
-    });
-    let quantity = Number(document.querySelector(`.js-quantity-selector-${productId}`).value);
-    if(matchingItem){
-        matchingItem.quantity += quantity;
-    } else{
-        cart.push({
-            productId: productId,
-            quantity : quantity,
-        });
-    };
-    let cartQuantity = 0;
-    cart.forEach((item)=>{
-        cartQuantity += item.quantity;
-    });
-    cartQuantityHTML.innerText = cartQuantity;
+addToCartButtons.forEach((button) => button.addEventListener(('click'), () => {
+  const productId = button.dataset.productId;
+  addProductToCart (productId);
+  updateCartQuantity(cart);
+  displayAddedToCartMessage(productId);
 
-    const addedToCart = document.querySelector(`.added-to-cart-js-${productId}`);
+}));
+
+
+
+
+function updateCartQuantity(cart){
+  let cartQuantity = 0;
+  cart.forEach((cartItem)=>{
+      cartQuantity += cartItem.quantity;
+  });
+  cartQuantityHTML.innerText = cartQuantity;
+};
+
+function displayAddedToCartMessage(productId){
+  const addedToCart = document.querySelector(`.added-to-cart-js-${productId}`);
     addedToCart.classList.add('opacityShow');
     let removeTimeout = false;
     
@@ -92,14 +89,11 @@ addToCartButtons.forEach(button => button.addEventListener(('click'), () => {
     };
     let timeoutId = setTimeout(removeOpacity,2000);
 
-    if(!removeTimeout){
-      setTimeout(removeOpacity,2000);
+    if(removeTimeout){
+      clearTimeout(timeoutId);
       removeTimeout = true;
     } else {
-      clearTimeout(timeoutId);
+      setTimeout(removeOpacity,2000);
       removeTimeout = false;
-    }
-  
-}));
-
-
+    };
+};
