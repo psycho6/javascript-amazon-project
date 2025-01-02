@@ -1,38 +1,59 @@
-export let cart = [
-    {
-        productId: "e43638ce-6aa0-4b85-b27f-e1d07eb678c6",
-        quantity : 2,
-    },
-    {
-        productId : '15b6fc6f-327a-4ec4-896f-486349e85a3d',
-        quantity : 1,
-    },
-];
+import { products } from "./products.js";
 
-export function addProductToCart (productId){
+// Initialize cart from localStorage, or default to an empty array if no cart data exists
+export let cart = JSON.parse(localStorage.getItem('cart')) || [];
+
+function saveCartToStorage() {
+    localStorage.setItem('cart', JSON.stringify(cart));
+}
+
+export function addProductToCart(productId) {
     let matchingItem;
-    cart.forEach((cartItem)=>{
-        if(productId === cartItem.productId){
+    
+    // Check if there is a matching item already in the cart
+    cart.forEach((cartItem) => {
+        if (productId === cartItem.productId) {
             matchingItem = cartItem;
         }
     });
+
+    // Get quantity from input element
     let quantity = Number(document.querySelector(`.js-quantity-selector-${productId}`).value);
-    if(matchingItem){
+
+    // If matching item exists, update its quantity, otherwise add a new item to the cart
+    if (matchingItem) {
         matchingItem.quantity += quantity;
-    } else{
+    } else {
         cart.push({
             productId: productId,
-            quantity : quantity,
+            quantity: quantity,
         });
-    };
+    }
+
+    saveCartToStorage();
 };
 
-export function removeProductfromCart(productId){
-    let newCart =[];
-    cart.forEach(cartItem =>{
-        if(cartItem.productId !== productId){
-            newCart.push(cartItem);
+export function removeProductfromCart(productId) {
+    // Filter out the product from the cart based on productId
+    cart = cart.filter(cartItem => cartItem.productId !== productId);
+    saveCartToStorage();
+};
+
+export function CalculateCartQunatity (cart){
+    let cartQuantity = 0;
+    cart.forEach((cartItem)=>{
+      cartQuantity += cartItem.quantity;
+    });
+    return cartQuantity;
+};
+
+export function updateQuantity(productId, newQuantity){
+    let matchingItem = undefined;
+    cart.forEach((cartItem)=>{
+        if (cartItem.productId === productId){
+            matchingItem = cartItem;
+            matchingItem.quantity = newQuantity;
         };
     });
-     cart = newCart;
-};
+    saveCartToStorage();
+}
